@@ -1,12 +1,8 @@
 name: terraform-apply
 
 on:
-  push:
-    branches: [ '**' ]
-    paths:
-      - 'environments/**'
-      - 'modules/**'
-      - '.github/workflows/terraform-apply.yml'
+  workflow_dispatch:
+    description: 'Manual trigger for Terraform Apply'
 
 permissions:
   id-token: write
