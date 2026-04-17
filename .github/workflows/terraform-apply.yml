@@ -19,7 +19,6 @@ concurrency:
 jobs:
   apply:
     runs-on: ubuntu-latest
-    environment: sandpit
     defaults:
       run:
         working-directory: environments/sandpit
