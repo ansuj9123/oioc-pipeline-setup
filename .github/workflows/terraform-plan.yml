@@ -35,13 +35,13 @@ jobs:
     plan:
         runs-on: ubuntu-latest
         environment: sandpit
-        defaults:
-            run:
-                working-directory: environments/sandpit
 
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: List Files (Debug)
+              run: ls -R
 
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
@@ -54,12 +54,15 @@ jobs:
                   subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
             - name: Terraform Init
+              working-directory: environments/sandpit
               run: terraform init -backend-config=backend.hcl -input=false
 
             - name: Terraform Validate
+              working-directory: environments/sandpit
               run: terraform validate
 
             - name: Terraform Plan
+              working-directory: environments/sandpit
               run: terraform plan -out=tfplan
 
             - name: Upload plan artifact
@@ -73,13 +76,13 @@ jobs:
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
         environment: sandpit
-        defaults:
-            run:
-                working-directory: environments/sandpit
 
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+
+            - name: List Files (Debug)
+              run: ls -R
 
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
@@ -98,7 +101,9 @@ jobs:
                   path: environments/sandpit
 
             - name: Terraform Init
+              working-directory: environments/sandpit
               run: terraform init -backend-config=backend.hcl -input=false
 
             - name: Terraform Apply
+              working-directory: environments/sandpit
               run: terraform apply -auto-approve -input=false tfplan
