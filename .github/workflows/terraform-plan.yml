@@ -24,6 +24,7 @@ concurrency:
 
 env:
     ARM_USE_OIDC: true
+    TF_VERSION: 1.12.2
     ARM_USE_AZUREAD: true
     # These secrets are used by both Azure Login and the Terraform Provider
     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -46,7 +47,7 @@ jobs:
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
               with:
-                  terraform_version: 1.12.2
+                  terraform_version: ${{ env.TF_VERSION }}
 
             - name: Azure Login
               uses: azure/login@v2
@@ -86,7 +87,7 @@ jobs:
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
               with:
-                  terraform_version: 1.12.2
+                  terraform_version: ${{ env.TF_VERSION }}
 
             - name: Azure Login
               uses: azure/login@v2
