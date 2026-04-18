@@ -25,9 +25,11 @@ concurrency:
 env:
     ARM_USE_OIDC: true
     ARM_USE_AZUREAD: true
+    # These secrets are used by both Azure Login and the Terraform Provider
     ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
     ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
     ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    TF_IN_AUTOMATION: true
 
 jobs:
     plan:
@@ -44,15 +46,15 @@ jobs:
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
 
-            - name: Azure Login
+            - name: Azure CLI Login
               uses: azure/login@v2
               with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                  client-id: ${{ env.ARM_CLIENT_ID }}
+                  tenant-id: ${{ env.ARM_TENANT_ID }}
+                  subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
             - name: Terraform Init
-              run: terraform init -backend-config=backend.hcl
+              run: terraform init -backend-config=backend.hcl -input=false
 
             - name: Terraform Validate
               run: terraform validate
@@ -82,12 +84,12 @@ jobs:
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
 
-            - name: Azure Login
+            - name: Azure CLI Login
               uses: azure/login@v2
               with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                  client-id: ${{ env.ARM_CLIENT_ID }}
+                  tenant-id: ${{ env.ARM_TENANT_ID }}
+                  subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
             - name: Download plan artifact
               uses: actions/download-artifact@v4
@@ -96,7 +98,7 @@ jobs:
                   path: environments/sandpit
 
             - name: Terraform Init
-              run: terraform init -backend-config=backend.hcl
+              run: terraform init -backend-config=backend.hcl -input=false
 
             - name: Terraform Apply
-              run: terraform apply -auto-approve tfplan
+              run: terraform apply -auto-approve -input=false tfplan
