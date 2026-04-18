@@ -1,4 +1,4 @@
-name: terraform-plan
+name: terraform-sandpit-pipeline
 
 on:
     push:
@@ -20,8 +20,15 @@ permissions:
     pull-requests: write
 
 concurrency:
-    group: terraform-plan-sandpit
-    cancel-in-progress: true
+    group: terraform-sandpit
+    cancel-in-progress: false
+
+env:
+    ARM_USE_OIDC: true
+    ARM_USE_AZUREAD: true
+    ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
     plan:
@@ -29,13 +36,6 @@ jobs:
         defaults:
             run:
                 working-directory: environments/sandpit
-
-        env:
-            ARM_USE_OIDC: true
-            ARM_USE_AZUREAD: true
-            ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-            ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-            ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
         steps:
             - name: Checkout
@@ -68,3 +68,37 @@ jobs:
               with:
                   name: tfplan-sandpit
                   path: environments/sandpit/tfplan
+
+    apply:
+        needs: plan
+        if: github.event_name == 'push'
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: environments/sandpit
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+            - name: Download plan artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: tfplan-sandpit
+                  path: environments/sandpit
+
+            - name: Terraform Init
+              run: terraform init -backend-config=backend.hcl
+
+            - name: Terraform Apply
+              run: terraform apply -auto-approve tfplan
