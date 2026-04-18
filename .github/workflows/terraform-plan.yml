@@ -33,6 +33,7 @@ env:
 jobs:
     plan:
         runs-on: ubuntu-latest
+        environment: sandpit
         defaults:
             run:
                 working-directory: environments/sandpit
@@ -73,6 +74,7 @@ jobs:
         needs: plan
         if: github.event_name == 'push'
         runs-on: ubuntu-latest
+        environment: sandpit
         defaults:
             run:
                 working-directory: environments/sandpit
