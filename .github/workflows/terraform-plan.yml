@@ -6,13 +6,13 @@ on:
         paths:
             - "environments/**"
             - "modules/**"
-            - ".github/workflows/terraform-plan.yml"
+            - ".github/workflows/**"
     pull_request:
         branches: [ "**" ]
         paths:
             - "environments/**"
             - "modules/**"
-            - ".github/workflows/terraform-plan.yml"
+            - ".github/workflows/**"
 
 permissions:
     id-token: write

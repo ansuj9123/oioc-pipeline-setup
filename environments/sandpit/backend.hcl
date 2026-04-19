@@ -1,9 +1,5 @@
-terraform {
-  backend "azurerm" {
-    # This is a partial configuration. Values are typically injected via 
-    # Terragrunt's remote_state block or -backend-config arguments.
-    # resource_group_name  = ""
-    # storage_account_name = ""
-    # container_name       = ""
-  }
-}
+# This is a partial configuration file. 
+# Attributes are injected here or passed via -backend-config arguments during init.
+# resource_group_name  = "your-rg"
+# storage_account_name = "your-storage-account"
+# container_name       = "your-container"
